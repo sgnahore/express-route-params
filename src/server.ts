@@ -8,9 +8,10 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/eat/apple", (req, res) => {
+app.get<{ fruit: string }>("/eat/:fruit", (req, res) => {
+  const fruit = req.params.fruit;
   res.json({
-    message: "Yum yum - you ate an apple!",
+    message: `Yum yum - you ate an ${fruit}!`,
   });
 });
 
@@ -26,29 +27,62 @@ app.get("/eat/carrot", (req, res) => {
   });
 });
 
-app.get("/echo/:exampleRouteParameter", (req, res) => {
-  const echoContent = req.params.exampleRouteParameter;
-  res.json({
-    echo: echoContent,
-    message: `I am echoing back to you: ${echoContent}`,
-  });
-});
+app.get<{ exampleRouteParameter: string; two: string }>(
+  "/echo/:exampleRouteParameter/:two",
+  (req, res) => {
+    const echoContent = req.params.exampleRouteParameter;
+    const partTwo = req.params.two;
+    res.json({
+      echo: echoContent,
+      message: `I am echoing back to you: ${echoContent}`,
+      example: `my test: ${partTwo}`,
+    });
+  }
+);
 
-app.get("/multiply/:numOne/:numTwo", (req, res) => {
-  /**
-   * Note that `numOne` and `numTwo` are both typed as string.
-   * (Hover over with your mouse to see!)
-   *
-   * Route params are, by default, typed as strings when they
-   * are parsed by Express.
-   */
-  const { numOne, numTwo } = req.params;
-  const multiplication = parseInt(numOne) * parseInt(numTwo);
-  res.json({
-    original: `${numOne} x ${numTwo}`,
-    result: multiplication,
-  });
-});
+app.get<{ numOne: number; numTwo: number }>(
+  "/multiply/:numOne/:numTwo",
+  (req, res) => {
+    /**
+     * Note that `numOne` and `numTwo` are both typed as string.
+     * (Hover over with your mouse to see!)
+     *
+     * Route params are, by default, typed as strings when they
+     * are parsed by Express.
+     */
+    const { numOne, numTwo } = req.params;
+    const multiplication = numOne * numTwo;
+
+    res.json({
+      original: `${numOne} x ${numTwo}`,
+      result: multiplication,
+    });
+  }
+);
+
+app.get<{ numOne: number; numTwo: number; numThree: number }>(
+  "/sum/:numOne/:numTwo/:numThree?",
+  (req, res) => {
+    /**
+     * Note that `numOne` and `numTwo` are both typed as string.
+     * (Hover over with your mouse to see!)
+     *
+     * Route params are, by default, typed as strings when they
+     * are parsed by Express.
+     */
+
+    const { numOne, numTwo, numThree } = req.params;
+    const sum = numOne + numTwo;
+
+    res.json({
+      original: `${numOne} + ${numTwo} + ${
+        numThree !== undefined ? ` + ${numThree}` : ""
+      }: `,
+
+      result: sum,
+    });
+  }
+);
 
 /**
  * `app.get` can take a type argument.
@@ -71,6 +105,13 @@ app.get<{ name: string }>("/happy-birthday/:name", (req, res) => {
   });
 });
 
+app.get<{ hello: string }>("/shout/:hello", (req, res) => {
+  const hello = req.params.hello;
+
+  res.json({
+    shout: `${hello}`,
+  });
+});
 // using 4000 by convention, but could be changed
 const PORT_NUMBER = 4000;
 
